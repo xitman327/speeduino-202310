@@ -1241,17 +1241,17 @@ INT8U MCP_CAN::readMsgBuf(INT32U *id, INT8U *len, INT8U buf[])
 *********************************************************************************************************/
 INT8U MCP_CAN::checkReceive(void)
 {
+    // Dont bother comunicating to MCP if theres no interrupt set.
     if(MCPINT != -1){
-        return (digitalRead(MCPINT))? CAN_NOMSG : CAN_MSGAVAIL ;
-    }else{
-        INT8U res;
-        res = mcp2515_readStatus();                                         /* RXnIF in Bit 1 and 0         */
-        if ( res & MCP_STAT_RXIF_MASK )
-            return CAN_MSGAVAIL;
-        else 
-            return CAN_NOMSG;
+        if (digitalRead(MCPINT)){return CAN_NOMSG;}
     }
-    return CAN_NOMSG;
+
+    INT8U res;
+    res = mcp2515_readStatus();                                         /* RXnIF in Bit 1 and 0         */
+    if ( res & MCP_STAT_RXIF_MASK )
+        return CAN_MSGAVAIL;
+    else 
+        return CAN_NOMSG;
 }
 
 /*********************************************************************************************************
