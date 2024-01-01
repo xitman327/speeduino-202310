@@ -810,11 +810,15 @@ INT8U MCP_CAN::mcp2515_getNextFreeTXBuf(INT8U *txbuf_n)                 /* get N
 ** Function name:           MCP_CAN
 ** Descriptions:            Public function to declare CAN class and the /CS pin.
 *********************************************************************************************************/
-MCP_CAN::MCP_CAN(INT8U _CS)
+MCP_CAN::MCP_CAN(INT8U _CS, INT8U _INT)
 {
     MCPCS = _CS;
+    MCPINT = _INT;
     MCP2515_UNSELECT();
     pinMode(MCPCS, OUTPUT);
+    if(MCPINT != -1){
+        pinMode(MCPINT, INPUT_PULLUP);
+    }
 }
 
 /*********************************************************************************************************
@@ -1237,12 +1241,17 @@ INT8U MCP_CAN::readMsgBuf(INT32U *id, INT8U *len, INT8U buf[])
 *********************************************************************************************************/
 INT8U MCP_CAN::checkReceive(void)
 {
-    INT8U res;
-    res = mcp2515_readStatus();                                         /* RXnIF in Bit 1 and 0         */
-    if ( res & MCP_STAT_RXIF_MASK )
-        return CAN_MSGAVAIL;
-    else 
-        return CAN_NOMSG;
+    if(MCPINT != -1){
+        return (digitalRead(MCPINT))? CAN_NOMSG : CAN_MSGAVAIL ;
+    }else{
+        INT8U res;
+        res = mcp2515_readStatus();                                         /* RXnIF in Bit 1 and 0         */
+        if ( res & MCP_STAT_RXIF_MASK )
+            return CAN_MSGAVAIL;
+        else 
+            return CAN_NOMSG;
+    }
+    return CAN_NOMSG;
 }
 
 /*********************************************************************************************************

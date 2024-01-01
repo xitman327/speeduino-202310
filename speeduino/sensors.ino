@@ -573,7 +573,7 @@ void readBat(void)
   #else
   #warning "Voltage devider upper limit of 3.3v for mcu"
     tempReading = analogRead(pinBat);
-    tempReading = fastMap1023toX(analogRead(pinBat), 134); //Get the current raw Battery value. Permissible values are from 0v to 24.5v (245)
+    tempReading = fastMap1023toX(analogRead(pinBat), 245); //Get the current raw Battery value. Permissible values are from 0v to 24.5v (245)
   #endif
 
   //Apply the offset calibration value to the reading
